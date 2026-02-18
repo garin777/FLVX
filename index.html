@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLVX — The AI-Native Label</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F5F7;
+    --text: #000000;
+    --text-secondary: #1D1D1F;
+    --text-mid: #48484A;
+    --text-dim: #8E8E93;
+    --blue: #007AFF;
+    --blue-dark: #0055CC;
+    --glass-bg: rgba(255, 255, 255, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.7);
+    --glass-shadow: rgba(0, 0, 0, 0.08);
+    --glass-shadow-deep: rgba(0, 0, 0, 0.15);
+    --border: rgba(0, 0, 0, 0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Newsreader', Georgia, serif;
+    font-weight: 500;
+    font-optical-sizing: auto;
+    font-size: 20px;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Grain ── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.018;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 512px 512px;
+  }
+
+  /* ── FLUX MESH — living gradient (below hero, visible throughout) ── */
+  .flux-mesh {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .flux-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.3;
+    will-change: transform;
+  }
+
+  .flux-blob:nth-child(1) {
+    width: 600px; height: 600px;
+    background: #007AFF;
+    top: -10%; left: -10%;
+    animation: drift1 18s ease-in-out infinite;
+  }
+  .flux-blob:nth-child(2) {
+    width: 500px; height: 500px;
+    background: #5856D6;
+    top: 20%; right: -15%;
+    animation: drift2 22s ease-in-out infinite;
+  }
+  .flux-blob:nth-child(3) {
+    width: 700px; height: 700px;
+    background: #FF9500;
+    bottom: -20%; left: 30%;
+    animation: drift3 20s ease-in-out infinite;
+  }
+  .flux-blob:nth-child(4) {
+    width: 400px; height: 400px;
+    background: #34C759;
+    top: 60%; left: -10%;
+    animation: drift4 16s ease-in-out infinite;
+  }
+  .flux-blob:nth-child(5) {
+    width: 450px; height: 450px;
+    background: #FF2D55;
+    top: -5%; right: 20%;
+    animation: drift5 24s ease-in-out infinite;
+  }
+
+  @keyframes drift1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(15vw, 20vh) scale(1.1); }
+    66% { transform: translate(5vw, 40vh) scale(0.9); }
+  }
+  @keyframes drift2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(-20vw, 15vh) scale(0.85); }
+    66% { transform: translate(-10vw, -10vh) scale(1.15); }
+  }
+  @keyframes drift3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(-10vw, -20vh) scale(1.15); }
+    66% { transform: translate(15vw, -5vh) scale(0.9); }
+  }
+  @keyframes drift4 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(25vw, -15vh) scale(1.2); }
+  }
+  @keyframes drift5 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(-15vw, 25vh) scale(1.1); }
+    66% { transform: translate(10vw, 10vh) scale(0.85); }
+  }
+
+  /* ── Glass ── */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      0 1px 3px var(--glass-shadow),
+      0 8px 32px var(--glass-shadow),
+      inset 0 1px 0 rgba(255,255,255,0.8);
+  }
+
+  .glass-elevated {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(60px) saturate(200%);
+    -webkit-backdrop-filter: blur(60px) saturate(200%);
+    border: 1px solid rgba(255,255,255,0.8);
+    box-shadow:
+      0 2px 8px var(--glass-shadow),
+      0 16px 48px var(--glass-shadow-deep),
+      inset 0 1px 0 rgba(255,255,255,0.9);
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    padding: 0.7rem 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.7);
+    box-shadow:
+      0 1px 2px rgba(0,0,0,0.05),
+      0 4px 16px rgba(0,0,0,0.08),
+      inset 0 1px 0 rgba(255,255,255,0.9);
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    color: var(--text);
+  }
+
+  .nav-link {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.45rem 1.3rem;
+    border-radius: 14px;
+    background: var(--text);
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  .nav-link:hover {
+    background: var(--blue);
+    box-shadow: 0 2px 12px rgba(0,122,255,0.4);
+    transform: translateY(-1px);
+  }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 8rem 2rem 6rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Animated waveform canvas behind hero */
+  .hero-waves {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero-waves canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-wordmark {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 1.2rem;
+    animation: fadeUp 0.8s ease 0.1s both;
+  }
+
+  .hero-wordmark h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(4.5rem, 14vw, 10rem);
+    letter-spacing: 0.22em;
+    color: var(--text);
+    line-height: 1;
+    margin-right: -0.22em;
+  }
+
+  .hero-wordmark .ai-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 400;
+    font-size: clamp(0.9rem, 2vw, 1.3rem);
+    color: var(--blue);
+    letter-spacing: 0.05em;
+    vertical-align: super;
+    margin-left: 0.2rem;
+  }
+
+  .hero-tagline {
+    position: relative;
+    z-index: 2;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: clamp(0.75rem, 1.5vw, 1rem);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-mid);
+    margin-bottom: 3rem;
+    animation: fadeUp 0.8s ease 0.2s both;
+  }
+
+  .hero-pitch {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.8s ease 0.35s both;
+  }
+
+  .hero-pitch p {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+    font-weight: 500;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  .hero-pitch p strong {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .hero-pitch p em {
+    color: var(--blue);
+    font-style: italic;
+    font-weight: 600;
+  }
+
+  .hero-cta {
+    position: relative;
+    z-index: 2;
+    animation: fadeUp 0.8s ease 0.5s both;
+  }
+
+  .btn-primary {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 1rem 3rem;
+    border-radius: 20px;
+    background: var(--text);
+    color: #fff;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 8px 24px rgba(0,0,0,0.1);
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-primary:hover {
+    background: var(--blue);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,122,255,0.35), 0 12px 32px rgba(0,122,255,0.2);
+  }
+
+  /* ── Manifesto ── */
+  .manifesto {
+    max-width: 740px;
+    margin: 0 auto;
+    padding: 4rem 2rem 6rem;
+  }
+
+  .m-block {
+    margin-bottom: 3rem;
+    padding: 2.5rem 3rem;
+    border-radius: 24px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .m-block.vis {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .m-short {
+    padding: 2rem 3rem;
+  }
+
+  .m-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    color: var(--blue);
+    margin-bottom: 1.2rem;
+    display: block;
+  }
+
+  .m-block p {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: clamp(1.25rem, 2.5vw, 1.65rem);
+    line-height: 1.65;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .m-block p em {
+    font-style: italic;
+    color: var(--blue);
+    font-weight: 600;
+  }
+
+  .m-block p .dim {
+    color: var(--text-dim);
+  }
+
+  /* ── Big statement ── */
+  .bigline {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 4rem 2rem 6rem;
+    text-align: center;
+  }
+
+  .bigline h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.2rem, 5.5vw, 4.2rem);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    color: var(--text);
+  }
+
+  .bigline h2 span {
+    color: var(--blue);
+  }
+
+  /* ── Stats ── */
+  .stats-wrap {
+    max-width: 860px;
+    margin: 0 auto 4rem;
+    padding: 0 2rem;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+  }
+
+  .stat {
+    text-align: center;
+    padding: 2.8rem 1.5rem;
+    border-radius: 24px;
+  }
+
+  .stat-n {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    color: var(--text);
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 0.8rem;
+  }
+
+  .stat-l {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+
+  /* ── Founders ── */
+  .founders {
+    max-width: 660px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+    text-align: center;
+  }
+
+  .founders-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 2.5rem;
+  }
+
+  .founders p {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 1.1rem;
+    line-height: 1.75;
+    color: var(--text-mid);
+    font-weight: 500;
+    margin-bottom: 1.2rem;
+  }
+
+  .founders p strong {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  /* ── Waitlist ── */
+  .waitlist-wrap {
+    max-width: 580px;
+    margin: 0 auto;
+    padding: 3rem 2rem 8rem;
+  }
+
+  .waitlist {
+    padding: 3.5rem 3rem;
+    border-radius: 28px;
+    text-align: center;
+  }
+
+  .waitlist h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+
+  .waitlist-sub {
+    font-family: 'Newsreader', Georgia, serif;
+    color: var(--text-mid);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    font-weight: 500;
+  }
+
+  .wl-form {
+    display: flex;
+    gap: 0;
+    max-width: 420px;
+    margin: 0 auto;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.08);
+  }
+
+  .wl-form input {
+    flex: 1;
+    padding: 0.95rem 1.3rem;
+    background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-right: none;
+    border-radius: 18px 0 0 18px;
+    color: var(--text);
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+
+  .wl-form input::placeholder {
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  .wl-form input:focus {
+    border-color: var(--blue);
+    box-shadow: inset 0 0 0 1px var(--blue);
+  }
+
+  .wl-form button {
+    padding: 0.95rem 2rem;
+    background: var(--text);
+    border: none;
+    border-radius: 0 18px 18px 0;
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .wl-form button:hover {
+    background: var(--blue);
+  }
+
+  .wl-ok {
+    display: none;
+    padding: 1.2rem 1.8rem;
+    border-radius: 16px;
+    background: rgba(0, 122, 255, 0.08);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--blue);
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .wl-note {
+    margin-top: 1.8rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+  }
+
+  .foot-mark {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    color: var(--text-dim);
+    margin-bottom: 0.8rem;
+  }
+
+  footer p {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    line-height: 2.5;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    nav { padding: 0.6rem 1.2rem; gap: 1.2rem; top: 12px; }
+    .hero { padding: 7rem 1.5rem 4rem; }
+    .manifesto { padding: 3rem 1rem 4rem; }
+    .m-block { padding: 2rem 2rem; border-radius: 20px; }
+    .m-short { padding: 1.5rem 2rem; }
+    .stats { grid-template-columns: 1fr; gap: 0.8rem; }
+    .stat { padding: 2rem 1rem; }
+    .wl-form { flex-direction: column; border-radius: 18px; }
+    .wl-form input { border-right: 1px solid rgba(0,0,0,0.08); border-bottom: none; border-radius: 18px 18px 0 0; }
+    .wl-form button { border-radius: 0 0 18px 18px; }
+    .waitlist { padding: 2.5rem 2rem; }
+    .bigline { padding: 3rem 1.5rem 4rem; }
+    .flux-blob { opacity: 0.2; }
+    .flux-blob:nth-child(1) { width: 350px; height: 350px; }
+    .flux-blob:nth-child(2) { width: 300px; height: 300px; }
+    .flux-blob:nth-child(3) { width: 400px; height: 400px; }
+    .flux-blob:nth-child(4) { width: 250px; height: 250px; }
+    .flux-blob:nth-child(5) { width: 280px; height: 280px; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-wordmark h1 { letter-spacing: 0.12em; margin-right: -0.12em; }
+    .hero-pitch p { font-size: 1.15rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Living gradient mesh -->
+<div class="flux-mesh" aria-hidden="true">
+  <div class="flux-blob"></div>
+  <div class="flux-blob"></div>
+  <div class="flux-blob"></div>
+  <div class="flux-blob"></div>
+  <div class="flux-blob"></div>
+</div>
+
+<div class="content">
+
+<nav>
+  <div class="nav-logo">FLVX</div>
+  <a href="#waitlist" class="nav-link">Join Waitlist</a>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <!-- Animated flux waveform -->
+  <div class="hero-waves">
+    <canvas id="fluxCanvas"></canvas>
+  </div>
+
+  <div class="hero-wordmark">
+    <h1>FLVX<span class="ai-tag">.ai</span></h1>
+  </div>
+
+  <div class="hero-tagline">The world's first AI-native electronic music label</div>
+
+  <div class="hero-pitch">
+    <p><strong>Get signed</strong> to a label that never sleeps. <em>Build a career</em> powered by AI — from first upload to first million streams.</p>
+  </div>
+
+  <div class="hero-cta">
+    <a href="#waitlist" class="btn-primary">Join Waitlist</a>
+  </div>
+</section>
+
+<!-- Manifesto -->
+<section class="manifesto">
+
+  <div class="m-block glass">
+    <span class="m-num">001</span>
+    <p>We started a label the way everyone does. <span class="dim">A&R by gut feeling. Distribution through gatekeepers. Royalties disappearing into black boxes.</span> We built a catalog worth acquiring. We learned how the industry works.</p>
+  </div>
+
+  <div class="m-block m-short glass">
+    <span class="m-num">002</span>
+    <p>More importantly, we learned <em>exactly where it breaks.</em></p>
+  </div>
+
+  <div class="m-block glass">
+    <span class="m-num">003</span>
+    <p>A traditional label can serve a few dozen artists. <span class="dim">Maybe a hundred, if it's well-funded.</span> The rest — the tens of thousands of producers uploading music every single day — get nothing. No curation. No strategy. No signal in the noise.</p>
+  </div>
+
+  <div class="m-block glass">
+    <span class="m-num">004</span>
+    <p>We are building the label that serves <em>ten thousand artists</em> with a team of five. AI handles everything except the one thing that still matters most — <em>taste.</em></p>
+  </div>
+
+  <div class="m-block glass">
+    <span class="m-num">005</span>
+    <p>Automated mastering. Intelligent distribution. Data-driven release strategy. Algorithmic A&R that detects breakout potential <span class="dim">before the first playlist add.</span> Everything a traditional label does. A hundred times faster.</p>
+  </div>
+
+  <div class="m-block glass">
+    <span class="m-num">006</span>
+    <p>We begin with electronic music. <em>The genre born from machines.</em> Where the entire production pipeline is already digital. Where discovery is algorithmic. Where the data tells a story — if you know how to read it.</p>
+  </div>
+
+  <div class="m-block m-short glass">
+    <span class="m-num">007</span>
+    <p>Submit your music. Our systems evaluate. <em>The best get elevated.</em> Everyone gets tools that didn't exist a year ago.</p>
+  </div>
+
+</section>
+
+<!-- Big statement -->
+<section class="bigline">
+  <h2>Everything is <span>in flux.</span><br>That's the point.</h2>
+</section>
+
+<!-- Stats -->
+<div class="stats-wrap">
+  <div class="stats">
+    <div class="stat glass-elevated">
+      <div class="stat-n">100x</div>
+      <div class="stat-l">Faster than<br>traditional A&R</div>
+    </div>
+    <div class="stat glass-elevated">
+      <div class="stat-n">&infin;</div>
+      <div class="stat-l">Artists we<br>can service</div>
+    </div>
+    <div class="stat glass-elevated">
+      <div class="stat-n">1</div>
+      <div class="stat-l">Thing AI can't<br>replace: taste</div>
+    </div>
+  </div>
+</div>
+
+<!-- Founders -->
+<section class="founders">
+  <p class="founders-label">Founded by</p>
+  <p><strong>Dmitry Garin</strong> — built Hyperboloid Music into a catalog acquired in 2023. A decade in electronic music, enterprise tech, and AI startups. London.</p>
+  <p><strong>Dr. Roman Belavkin</strong> — AI scientist, PhD in Artificial Intelligence, pioneer of Russian electronic music as Solar X. Founder of Art-TeK Records. Compared to Aphex Twin and Stockhausen. London.</p>
+</section>
+
+<!-- Waitlist -->
+<div class="waitlist-wrap" id="waitlist">
+  <div class="waitlist glass-elevated">
+    <h2>The next era of music starts here.</h2>
+    <p class="waitlist-sub">Whether you're a bedroom producer or an established artist — if you make electronic music, we want to hear from you.</p>
+    <div class="wl-form" id="wlForm">
+      <input type="email" id="wlEmail" placeholder="your@email.com">
+      <button type="button" onclick="submitWl()">Join</button>
+    </div>
+    <div class="wl-ok" id="wlOk">You're on the list. We'll be in touch.</div>
+    <p class="wl-note">Artists & producers · 2026</p>
+  </div>
+</div>
+
+<footer>
+  <div class="foot-mark">FLVX</div>
+  <p>
+    The AI-native label · London<br>
+    From the founders of Hyperboloid Music & Art-TeK Records<br>
+    &copy; 2026 FLVX Music
+  </p>
+</footer>
+
+</div>
+
+<script>
+// ── Animated flux waveform in hero ──
+const canvas = document.getElementById('fluxCanvas');
+const ctx = canvas.getContext('2d');
+let t = 0;
+
+function resize() {
+  canvas.width = canvas.parentElement.offsetWidth * window.devicePixelRatio;
+  canvas.height = canvas.parentElement.offsetHeight * window.devicePixelRatio;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+}
+
+function draw() {
+  const w = canvas.width / window.devicePixelRatio;
+  const h = canvas.height / window.devicePixelRatio;
+  ctx.clearRect(0, 0, w, h);
+
+  const centerY = h * 0.5;
+  const numWaves = 24;
+
+  for (let i = 0; i < numWaves; i++) {
+    const ratio = i / numWaves;
+    ctx.beginPath();
+
+    const speed = 0.15 + ratio * 0.2;
+    const amp = 30 + Math.sin(ratio * Math.PI) * 80;
+    const yOff = centerY + (ratio - 0.5) * h * 0.7;
+    const freq1 = 0.002 + ratio * 0.001;
+    const freq2 = 0.005 + ratio * 0.002;
+
+    // Color shifts through spectrum over time
+    const hue = (ratio * 220 + t * 8) % 360;
+    const alpha = 0.04 + Math.sin(ratio * Math.PI) * 0.04;
+    ctx.strokeStyle = `hsla(${hue}, 80%, 55%, ${alpha})`;
+    ctx.lineWidth = 1.5;
+
+    for (let x = 0; x <= w; x += 3) {
+      const y = yOff
+        + Math.sin(x * freq1 + t * speed) * amp
+        + Math.sin(x * freq2 + t * speed * 0.6 + ratio * 2) * (amp * 0.4)
+        + Math.sin(x * 0.001 + t * speed * 1.5) * (amp * 0.2);
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  t += 0.008;
+  requestAnimationFrame(draw);
+}
+
+window.addEventListener('resize', () => {
+  canvas.style.width = '';
+  canvas.style.height = '';
+  resize();
+});
+resize();
+draw();
+
+// ── Scroll reveal ──
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.m-block').forEach(b => obs.observe(b));
+
+// ── Waitlist ──
+function submitWl() {
+  const email = document.getElementById('wlEmail').value;
+  if (email && email.includes('@')) {
+    document.getElementById('wlForm').style.display = 'none';
+    document.getElementById('wlOk').style.display = 'block';
+  }
+}
+document.getElementById('wlEmail').addEventListener('keypress', e => {
+  if (e.key === 'Enter') submitWl();
+});
+</script>
+
+</body>
+</html>
