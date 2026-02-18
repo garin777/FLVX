@@ -838,13 +838,65 @@ const obs = new IntersectionObserver((entries) => {
 document.querySelectorAll('.m-block').forEach(b => obs.observe(b));
 
 // ── Waitlist ──
+// TODO: Replace with your Mailchimp audience's embedded form action URL.
+// Get it from: Audience → Signup forms → Embedded forms → copy the "action" URL.
+// Remove the "&amp;" and replace with "&" — it should look like the line below.
+const MAILCHIMP_URL = 'https://YOURSUBDOMAIN.us1.list-manage.com/subscribe/post-json?u=XXXXXXXXXXXXXXXXXXXXXXXX&id=XXXXXXXXXX';
+
+// Also create a custom merge field in your Mailchimp audience:
+// Audience → Settings → Audience fields → Add a field → Text → Tag: SOURCE
+
 function submitWl() {
-  const email = document.getElementById('wlEmail').value;
-  if (email && email.includes('@')) {
-    document.getElementById('wlForm').style.display = 'none';
-    document.getElementById('wlOk').style.display = 'block';
-  }
+  const email = document.getElementById('wlEmail').value.trim();
+  if (!email || !email.includes('@')) return;
+
+  // Capture UTM params for investor attribution reporting
+  const params = new URLSearchParams(window.location.search);
+  const utmParts = [
+    params.get('utm_source'),
+    params.get('utm_medium'),
+    params.get('utm_campaign')
+  ].filter(Boolean);
+  const source = utmParts.length ? utmParts.join(' / ') : 'direct';
+
+  // Loading state
+  const btn = document.querySelector('#wlForm button');
+  btn.textContent = '…';
+  btn.disabled = true;
+
+  // Mailchimp JSONP (works on static sites, no backend needed)
+  const cbName = 'mcCb_' + Date.now();
+  const url = MAILCHIMP_URL
+    + '&EMAIL=' + encodeURIComponent(email)
+    + '&SOURCE=' + encodeURIComponent(source)
+    + '&c=' + cbName;
+
+  window[cbName] = function(data) {
+    delete window[cbName];
+    document.body.removeChild(script);
+    const alreadyIn = data.msg && data.msg.toLowerCase().includes('already subscribed');
+    if (data.result === 'success' || alreadyIn) {
+      document.getElementById('wlForm').style.display = 'none';
+      document.getElementById('wlOk').style.display = 'block';
+    } else {
+      btn.textContent = 'Join';
+      btn.disabled = false;
+      let err = document.getElementById('wlErr');
+      if (!err) {
+        err = document.createElement('p');
+        err.id = 'wlErr';
+        err.style.cssText = 'color:#ff6b6b;font-size:0.85rem;margin-top:0.5rem;';
+        document.getElementById('wlForm').after(err);
+      }
+      err.textContent = 'Something went wrong — please try again.';
+    }
+  };
+
+  const script = document.createElement('script');
+  script.src = url;
+  document.body.appendChild(script);
 }
+
 document.getElementById('wlEmail').addEventListener('keypress', e => {
   if (e.key === 'Enter') submitWl();
 });
