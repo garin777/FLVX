@@ -838,9 +838,16 @@ const obs = new IntersectionObserver((entries) => {
 document.querySelectorAll('.m-block').forEach(b => obs.observe(b));
 
 // ── Waitlist ──
-// TODO: Paste your Make.com webhook URL here.
-// make.com → Create scenario → Webhooks (trigger) → Airtable: Create a Record (action)
-const WEBHOOK_URL = 'https://hook.eu2.make.com/YOUR_WEBHOOK_ID';
+// TODO: Fill these in after creating your Google Form (see steps below).
+//
+// 1. Create a Google Form with two Short answer fields: "Email" and "Source"
+// 2. Open the form → ⋮ → Get pre-filled link → fill dummy values → Get link
+// 3. From that URL copy:
+//    - The form ID  → https://docs.google.com/forms/d/e/FORM_ID/viewform
+//    - The entry IDs → ?entry.111111=dummy&entry.222222=dummy
+const FORM_ACTION = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse';
+const FIELD_EMAIL  = 'entry.YOUR_EMAIL_ENTRY_ID';
+const FIELD_SOURCE = 'entry.YOUR_SOURCE_ENTRY_ID';
 
 function submitWl() {
   const email = document.getElementById('wlEmail').value.trim();
@@ -860,16 +867,20 @@ function submitWl() {
   btn.textContent = '…';
   btn.disabled = true;
 
-  fetch(WEBHOOK_URL, {
+  const body = new URLSearchParams();
+  body.set(FIELD_EMAIL, email);
+  body.set(FIELD_SOURCE, source);
+
+  // Google Forms blocks CORS reads, but the POST still lands in your Sheet
+  fetch(FORM_ACTION, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, source })
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString()
   })
-  .then(r => {
-    if (r.ok) {
-      document.getElementById('wlForm').style.display = 'none';
-      document.getElementById('wlOk').style.display = 'block';
-    } else throw new Error();
+  .then(() => {
+    document.getElementById('wlForm').style.display = 'none';
+    document.getElementById('wlOk').style.display = 'block';
   })
   .catch(() => {
     btn.textContent = 'Join';
