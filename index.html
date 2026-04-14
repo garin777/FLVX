@@ -838,11 +838,31 @@ const obs = new IntersectionObserver((entries) => {
 document.querySelectorAll('.m-block').forEach(b => obs.observe(b));
 
 // ── Waitlist ──
-function submitWl() {
-  const email = document.getElementById('wlEmail').value;
-  if (email && email.includes('@')) {
-    document.getElementById('wlForm').style.display = 'none';
-    document.getElementById('wlOk').style.display = 'block';
+async function submitWl() {
+  const emailEl = document.getElementById('wlEmail');
+  const btn = document.querySelector('#wlForm button');
+  const email = emailEl.value.trim();
+  if (!email || !email.includes('@')) return;
+
+  btn.textContent = '...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('https://us-central1-flvx-ai.cloudfunctions.net/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    if (res.ok) {
+      document.getElementById('wlForm').style.display = 'none';
+      document.getElementById('wlOk').style.display = 'block';
+    } else {
+      btn.textContent = 'Join';
+      btn.disabled = false;
+    }
+  } catch {
+    btn.textContent = 'Join';
+    btn.disabled = false;
   }
 }
 document.getElementById('wlEmail').addEventListener('keypress', e => {
