@@ -1,7 +1,7 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { Resend } = require("resend");
 
-const resend = new Resend("re_FWnBdwxJ_KR4y6RCYRqsf3BSBw2JPd5Tt");
+const resend = new Resend("re_BryHqghP_GKRMqdYeZE3MipABv1roAjMz");
 const AUDIENCE_ID = "07ea7778-9d16-4c98-af51-2c2543b88c9b";
 
 exports.subscribe = onRequest(
