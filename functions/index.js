@@ -11,27 +11,36 @@ exports.subscribe = onRequest(
     }
 
     const { email } = req.body;
+    console.log("subscribe called with email:", email);
+
     if (!email || !email.includes("@")) {
       return res.status(400).json({ error: "Valid email required" });
     }
 
-    const response = await fetch(
-      `https://api.resend.com/audiences/${RESEND_AUDIENCE_ID}/contacts`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, unsubscribed: false }),
-      }
-    );
+    try {
+      const response = await fetch(
+        `https://api.resend.com/audiences/${RESEND_AUDIENCE_ID}/contacts`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, unsubscribed: false }),
+        }
+      );
 
-    if (response.ok) {
-      return res.status(200).json({ success: true });
-    } else {
-      const err = await response.json();
-      return res.status(500).json({ error: err.message || "Failed to subscribe" });
+      const data = await response.json();
+      console.log("Resend status:", response.status, "body:", JSON.stringify(data));
+
+      if (response.ok) {
+        return res.status(200).json({ success: true });
+      } else {
+        return res.status(500).json({ error: data.message || "Failed to subscribe" });
+      }
+    } catch (err) {
+      console.error("Fetch error:", err.message);
+      return res.status(500).json({ error: "Internal error" });
     }
   }
 );
