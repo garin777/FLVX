@@ -873,7 +873,9 @@ document.getElementById('wlEmail').addEventListener('keypress', e => {
 document.querySelectorAll('a[href="#waitlist"]').forEach(a => {
   a.addEventListener('click', e => {
     e.preventDefault();
-    document.getElementById('waitlist').scrollIntoView({ behavior: 'instant' });
+    const target = document.getElementById('waitlist');
+    const top = target.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top, behavior: 'instant' });
   });
 });
 </script>
