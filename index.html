@@ -868,6 +868,13 @@ async function submitWl() {
 document.getElementById('wlEmail').addEventListener('keypress', e => {
   if (e.key === 'Enter') submitWl();
 });
+
+document.querySelectorAll('a[href="#waitlist"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.getElementById('waitlist').scrollIntoView({ behavior: 'instant' });
+  });
+});
 </script>
 
 </body>
