@@ -770,7 +770,8 @@
       <input type="email" id="wlEmail" placeholder="your@email.com">
       <button type="button" onclick="submitWl()">Join</button>
     </div>
-    <div class="wl-ok" id="wlOk">You're on the list. We'll be in touch.</div>
+    <div class="wl-ok" id="wlOk">Check your email to confirm your spot. We'll be in touch.</div>
+    <div class="wl-ok" id="wlConfirmed" style="display:none;"></div>
     <p class="wl-note">Artists & producers · 2026</p>
   </div>
 </div>
@@ -850,6 +851,25 @@ const obs = new IntersectionObserver((entries) => {
 }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 document.querySelectorAll('.m-block').forEach(b => obs.observe(b));
 
+// ── Referral code from URL ──
+const urlParams = new URLSearchParams(window.location.search);
+const refCode = urlParams.get('ref');
+
+// ── Confirmed return state ──
+const confirmedState = urlParams.get('confirmed');
+const confirmedPosition = urlParams.get('position');
+const confirmedRef = urlParams.get('ref');
+if (confirmedState === 'true' && confirmedPosition) {
+  document.getElementById('wlForm').style.display = 'none';
+  document.getElementById('wlOk').style.display = 'none';
+  const el = document.getElementById('wlConfirmed');
+  el.style.display = 'block';
+  el.innerHTML = `You're <strong>#${confirmedPosition}</strong> on the list. Check your email for next steps.`;
+  const target = document.getElementById('waitlist');
+  const top = target.getBoundingClientRect().top + window.scrollY - 80;
+  window.scrollTo({ top, behavior: 'instant' });
+}
+
 // ── Waitlist ──
 async function submitWl() {
   const emailEl = document.getElementById('wlEmail');
@@ -864,7 +884,7 @@ async function submitWl() {
     const res = await fetch('https://us-central1-flvx-ai.cloudfunctions.net/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email, ref: refCode || null })
     });
     if (res.ok) {
       document.getElementById('wlForm').style.display = 'none';
