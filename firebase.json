@@ -10,7 +10,8 @@
       ".git",
       ".gitignore",
       "README.md",
-      "functions"
+      "functions/**",
+      "**/node_modules/**"
     ],
     "rewrites": [
       {
