@@ -1,7 +1,8 @@
 const { onRequest } = require("firebase-functions/v2/https");
+const { Resend } = require("resend");
 
-const RESEND_API_KEY = "re_FWnBdwxJ_KR4y6RCYRqsf3BSBw2JPd5Tt";
-const RESEND_AUDIENCE_ID = "07ea7778-9d16-4c98-af51-2c2543b88c9b";
+const resend = new Resend("re_FWnBdwxJ_KR4y6RCYRqsf3BSBw2JPd5Tt");
+const AUDIENCE_ID = "07ea7778-9d16-4c98-af51-2c2543b88c9b";
 
 exports.subscribe = onRequest(
   { cors: ["https://flvx-ai.web.app", "https://flvx.ai", "https://flvx-ai.firebaseapp.com"] },
@@ -17,35 +18,21 @@ exports.subscribe = onRequest(
       return res.status(400).json({ error: "Valid email required" });
     }
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
-
     try {
-      const url = `https://api.resend.com/audiences/${RESEND_AUDIENCE_ID}/contacts`;
-      console.log("Calling Resend URL:", url);
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, unsubscribed: false }),
-        signal: controller.signal,
+      const { data, error } = await resend.contacts.create({
+        email,
+        audienceId: AUDIENCE_ID,
       });
 
-      clearTimeout(timeout);
-      const data = await response.json();
-      console.log("Resend status:", response.status, "body:", JSON.stringify(data));
-
-      if (response.ok) {
-        return res.status(200).json({ success: true });
-      } else {
-        return res.status(500).json({ error: data.message || "Failed to subscribe" });
+      if (error) {
+        console.error("Resend error:", JSON.stringify(error));
+        return res.status(500).json({ error: error.message });
       }
+
+      console.log("Resend success:", JSON.stringify(data));
+      return res.status(200).json({ success: true });
     } catch (err) {
-      clearTimeout(timeout);
-      console.error("Error calling Resend:", err.name, err.message);
+      console.error("Unexpected error:", err.message);
       return res.status(500).json({ error: "Internal error" });
     }
   }
