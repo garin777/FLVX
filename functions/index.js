@@ -117,15 +117,20 @@ async function sendOptInEmail(email, token) {
     subject: "Confirm your spot on the FLVX waitlist",
     html: `
 <!DOCTYPE html>
-<html>
-<body style="margin:0;padding:0;background:#F5F5F7;font-family:'Helvetica Neue',Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0">
-<tr><td align="center" style="padding:48px 24px;">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light only">
+<style>:root{color-scheme:light only;}</style>
+</head>
+<body style="margin:0;padding:0;background:#F5F5F7;font-family:'Helvetica Neue',Arial,sans-serif;" bgcolor="#F5F5F7">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#F5F5F7">
+<tr><td align="center" style="padding:48px 24px;background:#F5F5F7;">
 <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
   <tr><td style="padding-bottom:32px;">
     <span style="font-family:Arial Black,sans-serif;font-size:20px;font-weight:900;letter-spacing:0.3em;color:#000000;">FLVX</span>
   </td></tr>
-  <tr><td style="background:#ffffff;border:1px solid rgba(0,0,0,0.08);border-radius:20px;padding:48px 40px;">
+  <tr><td style="background:#ffffff;border:1px solid #e5e5e5;border-radius:20px;padding:48px 40px;" bgcolor="#ffffff">
     <p style="font-size:24px;font-weight:700;color:#000000;margin:0 0 16px;">One step away.</p>
     <p style="font-size:16px;color:#48484A;line-height:1.6;margin:0 0 32px;">
       Confirm your email to secure your place on the FLVX waitlist.
@@ -158,15 +163,20 @@ async function sendWelcomeEmail(email, position, referralCode) {
     subject: `You're #${position} on the FLVX waitlist`,
     html: `
 <!DOCTYPE html>
-<html>
-<body style="margin:0;padding:0;background:#F5F5F7;font-family:'Helvetica Neue',Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0">
-<tr><td align="center" style="padding:48px 24px;">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light only">
+<style>:root{color-scheme:light only;}</style>
+</head>
+<body style="margin:0;padding:0;background:#F5F5F7;font-family:'Helvetica Neue',Arial,sans-serif;" bgcolor="#F5F5F7">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#F5F5F7">
+<tr><td align="center" style="padding:48px 24px;background:#F5F5F7;">
 <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
   <tr><td style="padding-bottom:32px;">
     <span style="font-family:Arial Black,sans-serif;font-size:20px;font-weight:900;letter-spacing:0.3em;color:#000000;">FLVX</span>
   </td></tr>
-  <tr><td style="background:#ffffff;border:1px solid rgba(0,0,0,0.08);border-radius:20px;padding:48px 40px;">
+  <tr><td style="background:#ffffff;border:1px solid #e5e5e5;border-radius:20px;padding:48px 40px;" bgcolor="#ffffff">
     <p style="font-size:11px;font-family:monospace;letter-spacing:0.2em;color:#007AFF;text-transform:uppercase;margin:0 0 12px;">You're in</p>
     <p style="font-size:40px;font-weight:800;color:#000000;margin:0 0 8px;">#${position}</p>
     <p style="font-size:16px;color:#48484A;line-height:1.6;margin:0 0 32px;">
