@@ -887,8 +887,15 @@ async function submitWl() {
       body: JSON.stringify({ email, ref: refCode || null })
     });
     if (res.ok) {
+      const data = await res.json();
       document.getElementById('wlForm').style.display = 'none';
-      document.getElementById('wlOk').style.display = 'block';
+      if (data.alreadyConfirmed) {
+        const el = document.getElementById('wlConfirmed');
+        el.style.display = 'block';
+        el.innerHTML = `You're already on the list. Check your welcome email for your position and referral link.`;
+      } else {
+        document.getElementById('wlOk').style.display = 'block';
+      }
     } else {
       btn.textContent = 'Join';
       btn.disabled = false;

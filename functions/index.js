@@ -33,7 +33,7 @@ exports.subscribe = onRequest({ cors: CORS_ORIGINS }, async (req, res) => {
 
   if (existing.exists) {
     if (existing.data().confirmed) {
-      return res.status(200).json({ success: true });
+      return res.status(200).json({ success: true, alreadyConfirmed: true });
     }
     // Resend opt-in email if not yet confirmed
     await sendOptInEmail(emailLower, existing.data().token);
