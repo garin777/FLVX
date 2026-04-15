@@ -770,7 +770,7 @@
       <input type="email" id="wlEmail" placeholder="your@email.com">
       <button type="button" onclick="submitWl()">Join</button>
     </div>
-    <div class="wl-ok" id="wlOk">Check your email to confirm your spot. We'll be in touch.</div>
+    <div class="wl-ok" id="wlOk">Check your email to confirm your spot — if it's not there in a minute, check your spam folder.</div>
     <div class="wl-ok" id="wlConfirmed" style="display:none;"></div>
     <p class="wl-note">Artists & producers · 2026</p>
   </div>
@@ -864,7 +864,7 @@ if (confirmedState === 'true' && confirmedPosition) {
   document.getElementById('wlOk').style.display = 'none';
   const el = document.getElementById('wlConfirmed');
   el.style.display = 'block';
-  el.innerHTML = `You're <strong>#${confirmedPosition}</strong> on the list. Check your email for next steps.`;
+  el.innerHTML = `You're <strong>#${confirmedPosition}</strong> on the list. Welcome email on its way — check your spam if it doesn't arrive within a minute.`;
   const target = document.getElementById('waitlist');
   const top = target.getBoundingClientRect().top + window.scrollY - 80;
   window.scrollTo({ top, behavior: 'instant' });
