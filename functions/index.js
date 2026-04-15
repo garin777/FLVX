@@ -118,23 +118,28 @@ async function sendOptInEmail(email, token) {
     html: `
 <!DOCTYPE html>
 <html>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:'Helvetica Neue',Arial,sans-serif;">
+<body style="margin:0;padding:0;background:#F5F5F7;font-family:'Helvetica Neue',Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0">
 <tr><td align="center" style="padding:48px 24px;">
 <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
   <tr><td style="padding-bottom:32px;">
-    <span style="font-family:Arial Black,sans-serif;font-size:22px;font-weight:900;letter-spacing:0.15em;color:#fff;">FLVX</span>
+    <span style="font-family:Arial Black,sans-serif;font-size:20px;font-weight:900;letter-spacing:0.3em;color:#000000;">FLVX</span>
   </td></tr>
-  <tr><td style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:48px 40px;">
-    <p style="font-size:24px;font-weight:700;color:#fff;margin:0 0 16px;">One step away.</p>
-    <p style="font-size:16px;color:rgba(255,255,255,0.6);line-height:1.6;margin:0 0 32px;">
+  <tr><td style="background:#ffffff;border:1px solid rgba(0,0,0,0.08);border-radius:20px;padding:48px 40px;">
+    <p style="font-size:24px;font-weight:700;color:#000000;margin:0 0 16px;">One step away.</p>
+    <p style="font-size:16px;color:#48484A;line-height:1.6;margin:0 0 32px;">
       Confirm your email to secure your place on the FLVX waitlist.
     </p>
-    <a href="${confirmUrl}" style="display:inline-block;background:#007aff;color:#fff;text-decoration:none;font-size:14px;font-weight:600;letter-spacing:0.05em;padding:16px 36px;border-radius:100px;">
+    <a href="${confirmUrl}" style="display:inline-block;background:#000000;color:#ffffff;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:0.1em;padding:16px 36px;border-radius:100px;">
       CONFIRM MY SPOT
     </a>
-    <p style="font-size:13px;color:rgba(255,255,255,0.3);margin:32px 0 0;line-height:1.6;">
+    <p style="font-size:13px;color:#8E8E93;margin:32px 0 0;line-height:1.6;">
       If you didn't sign up for FLVX, you can ignore this email.
+    </p>
+  </td></tr>
+  <tr><td style="padding-top:24px;">
+    <p style="font-size:12px;color:#8E8E93;text-align:center;margin:0;">
+      FLVX Music · London · <a href="${SITE_URL}" style="color:#8E8E93;">flvx.ai</a>
     </p>
   </td></tr>
 </table>
@@ -154,52 +159,52 @@ async function sendWelcomeEmail(email, position, referralCode) {
     html: `
 <!DOCTYPE html>
 <html>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:'Helvetica Neue',Arial,sans-serif;">
+<body style="margin:0;padding:0;background:#F5F5F7;font-family:'Helvetica Neue',Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0">
 <tr><td align="center" style="padding:48px 24px;">
 <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
   <tr><td style="padding-bottom:32px;">
-    <span style="font-family:Arial Black,sans-serif;font-size:22px;font-weight:900;letter-spacing:0.15em;color:#fff;">FLVX</span>
+    <span style="font-family:Arial Black,sans-serif;font-size:20px;font-weight:900;letter-spacing:0.3em;color:#000000;">FLVX</span>
   </td></tr>
-  <tr><td style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:48px 40px;">
-    <p style="font-size:13px;font-family:monospace;letter-spacing:0.2em;color:#007aff;text-transform:uppercase;margin:0 0 12px;">You're in</p>
-    <p style="font-size:32px;font-weight:800;color:#fff;margin:0 0 8px;">#${position}</p>
-    <p style="font-size:16px;color:rgba(255,255,255,0.6);line-height:1.6;margin:0 0 32px;">
+  <tr><td style="background:#ffffff;border:1px solid rgba(0,0,0,0.08);border-radius:20px;padding:48px 40px;">
+    <p style="font-size:11px;font-family:monospace;letter-spacing:0.2em;color:#007AFF;text-transform:uppercase;margin:0 0 12px;">You're in</p>
+    <p style="font-size:40px;font-weight:800;color:#000000;margin:0 0 8px;">#${position}</p>
+    <p style="font-size:16px;color:#48484A;line-height:1.6;margin:0 0 32px;">
       You're on the FLVX waitlist. Welcome.
     </p>
 
-    <p style="font-size:13px;font-family:monospace;letter-spacing:0.2em;color:rgba(255,255,255,0.4);text-transform:uppercase;margin:0 0 12px;">How it works</p>
-    <p style="font-size:15px;color:rgba(255,255,255,0.6);line-height:1.7;margin:0 0 32px;">
-      We onboard artists in waves as cohorts form. Each cohort gets access to FLVX tools, distribution, and our A&R pipeline. The more engaged you are, the better your chances of making the next wave.
+    <p style="font-size:11px;font-family:monospace;letter-spacing:0.2em;color:#8E8E93;text-transform:uppercase;margin:0 0 12px;">How it works</p>
+    <p style="font-size:15px;color:#48484A;line-height:1.7;margin:0 0 32px;">
+      We invite artists in waves once cohorts are ready. Each cohort gets access to FLVX tools, distribution, and our A&R pipeline. The more engaged you are, the better your chances of making the next wave.
     </p>
 
-    <p style="font-size:13px;font-family:monospace;letter-spacing:0.2em;color:rgba(255,255,255,0.4);text-transform:uppercase;margin:0 0 16px;">Increase your chances</p>
+    <p style="font-size:11px;font-family:monospace;letter-spacing:0.2em;color:#8E8E93;text-transform:uppercase;margin:0 0 16px;">Increase your chances</p>
     <table cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
       <tr><td>
-        <a href="${INSTAGRAM_URL}" style="display:inline-block;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:0.08em;padding:14px 28px;border-radius:100px;">
+        <a href="${INSTAGRAM_URL}" style="display:inline-block;background:#ffffff;border:1px solid rgba(0,0,0,0.15);color:#000000;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:0.1em;padding:14px 28px;border-radius:100px;">
           FOLLOW @FLVX_AI
         </a>
       </td></tr>
     </table>
     <table cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
       <tr><td>
-        <a href="${TALLY_FORM_URL}" style="display:inline-block;background:#007aff;color:#fff;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:0.08em;padding:14px 28px;border-radius:100px;">
+        <a href="${TALLY_FORM_URL}" style="display:inline-block;background:#000000;color:#ffffff;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:0.1em;padding:14px 28px;border-radius:100px;">
           COMPLETE YOUR PROFILE
         </a>
       </td></tr>
     </table>
 
-    <div style="background:rgba(0,122,255,0.08);border:1px solid rgba(0,122,255,0.2);border-radius:14px;padding:24px;">
-      <p style="font-size:13px;font-family:monospace;letter-spacing:0.15em;color:#007aff;text-transform:uppercase;margin:0 0 8px;">Your referral link</p>
-      <p style="font-size:14px;color:rgba(255,255,255,0.6);line-height:1.6;margin:0 0 12px;">
+    <div style="background:rgba(0,122,255,0.06);border:1px solid rgba(0,122,255,0.15);border-radius:14px;padding:24px;">
+      <p style="font-size:11px;font-family:monospace;letter-spacing:0.15em;color:#007AFF;text-transform:uppercase;margin:0 0 8px;">Your referral link</p>
+      <p style="font-size:14px;color:#48484A;line-height:1.6;margin:0 0 12px;">
         Know someone who makes electronic music? Share your link — they'll jump the queue.
       </p>
-      <p style="font-size:13px;font-family:monospace;color:rgba(255,255,255,0.5);margin:0;word-break:break-all;">${referralUrl}</p>
+      <p style="font-size:13px;font-family:monospace;color:#007AFF;margin:0;word-break:break-all;">${referralUrl}</p>
     </div>
   </td></tr>
   <tr><td style="padding-top:24px;">
-    <p style="font-size:12px;color:rgba(255,255,255,0.2);text-align:center;margin:0;">
-      FLVX Music · London · <a href="${SITE_URL}" style="color:rgba(255,255,255,0.3);">flvx.ai</a>
+    <p style="font-size:12px;color:#8E8E93;text-align:center;margin:0;">
+      FLVX Music · London · <a href="${SITE_URL}" style="color:#8E8E93;">flvx.ai</a>
     </p>
   </td></tr>
 </table>
