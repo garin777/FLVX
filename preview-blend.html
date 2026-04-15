@@ -59,8 +59,8 @@
   .flux-blob {
     position: absolute;
     border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.3;
+    filter: blur(90px);
+    opacity: 0.55;
     will-change: transform;
     mix-blend-mode: multiply; /* PREVIEW: richer overlap on light UI (overridden at runtime via ?blend=) */
   }
@@ -112,6 +112,18 @@
     top: -5%; right: 20%;
     animation: drift5 24s ease-in-out infinite;
   }
+  .flux-blob:nth-child(6) {
+    width: 520px; height: 520px;
+    background: #AF52DE;
+    top: 40%; left: 25%;
+    animation: drift6 21s ease-in-out infinite;
+  }
+  .flux-blob:nth-child(7) {
+    width: 480px; height: 480px;
+    background: #5AC8FA;
+    bottom: 10%; right: 5%;
+    animation: drift7 19s ease-in-out infinite;
+  }
 
   @keyframes drift1 {
     0%, 100% { transform: translate(0, 0) scale(1); }
@@ -136,6 +148,15 @@
     0%, 100% { transform: translate(0, 0) scale(1); }
     33% { transform: translate(-15vw, 25vh) scale(1.1); }
     66% { transform: translate(10vw, 10vh) scale(0.85); }
+  }
+  @keyframes drift6 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(18vw, -22vh) scale(0.9); }
+    66% { transform: translate(-12vw, 18vh) scale(1.1); }
+  }
+  @keyframes drift7 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-22vw, -20vh) scale(1.15); }
   }
 
   /* ── Glass ── */
@@ -647,12 +668,14 @@
     .wl-form button { border-radius: 0 0 18px 18px; }
     .waitlist { padding: 2.5rem 2rem; }
     .bigline { padding: 3rem 1.5rem 4rem; }
-    .flux-blob { opacity: 0.2; }
+    .flux-blob { opacity: 0.4; }
     .flux-blob:nth-child(1) { width: 350px; height: 350px; }
     .flux-blob:nth-child(2) { width: 300px; height: 300px; }
     .flux-blob:nth-child(3) { width: 400px; height: 400px; }
     .flux-blob:nth-child(4) { width: 250px; height: 250px; }
     .flux-blob:nth-child(5) { width: 280px; height: 280px; }
+    .flux-blob:nth-child(6) { width: 320px; height: 320px; }
+    .flux-blob:nth-child(7) { width: 290px; height: 290px; }
   }
 
   @media (max-width: 480px) {
@@ -664,7 +687,7 @@
 <body>
 
 <!-- PREVIEW marker -->
-<div class="preview-badge" aria-hidden="true" id="previewBadge">Preview · blend: multiply</div>
+<div class="preview-badge" aria-hidden="true" id="previewBadge">Preview v2 · blend: multiply · 7 blobs</div>
 
 <script>
   // Flip blend modes live: add ?blend=screen (or multiply, darken, plus-lighter,
@@ -679,7 +702,7 @@
       document.head.appendChild(style);
       document.addEventListener('DOMContentLoaded', function () {
         var b = document.getElementById('previewBadge');
-        if (b) b.textContent = 'Preview · blend: ' + mode;
+        if (b) b.textContent = 'Preview v2 · blend: ' + mode + ' · 7 blobs';
       });
     }
   })();
@@ -687,6 +710,8 @@
 
 <!-- Living gradient mesh -->
 <div class="flux-mesh" aria-hidden="true">
+  <div class="flux-blob"></div>
+  <div class="flux-blob"></div>
   <div class="flux-blob"></div>
   <div class="flux-blob"></div>
   <div class="flux-blob"></div>
