@@ -96,6 +96,6 @@ User submits email
 ---
 
 ## Pending / TODOs
-1. Verify `flvx.ai` as sending domain in Resend (resend.com/domains)
-2. Create Tally onboarding form and replace `TALLY_PLACEHOLDER` in `functions/index.js`
+1. ~~Verify `flvx.ai` as sending domain in Resend~~ ✓
+2. ~~Create Tally onboarding form~~ ✓ — https://tally.so/r/WOMypa
 3. Deploy latest changes: `cd functions && npm install && cd .. && firebase deploy`

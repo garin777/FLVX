@@ -11,7 +11,7 @@ const resend = new Resend("re_BryHqghP_GKRMqdYeZE3MipABv1roAjMz");
 const AUDIENCE_ID = "07ea7778-9d16-4c98-af51-2c2543b88c9b";
 const SITE_URL = "https://flvx.ai";
 const FROM_EMAIL = "FLVX <waitlist@flvx.ai>"; // requires flvx.ai verified in Resend
-const TALLY_FORM_URL = "TALLY_PLACEHOLDER"; // replace with your Tally form URL
+const TALLY_FORM_URL = "https://tally.so/r/WOMypa";
 const INSTAGRAM_URL = "https://instagram.com/flvx_ai";
 
 const CORS_ORIGINS = [
