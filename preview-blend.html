@@ -5,8 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FLVX — The AI-Native Label</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script>
+  // Anti-FOUC: set theme attribute before any body content paints.
+  (function () {
+    try {
+      var urlTheme = new URLSearchParams(location.search).get('theme');
+      var stored = localStorage.getItem('flvx-theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = (urlTheme === 'day' || urlTheme === 'night')
+        ? urlTheme
+        : (stored || (prefersDark ? 'night' : 'day'));
+      if (theme === 'night') document.documentElement.setAttribute('data-theme', 'night');
+    } catch (e) { /* no-op */ }
+  })();
+</script>
 <style>
   :root {
+    /* DAY (default) */
     --bg: #F5F5F7;
     --text: #000000;
     --text-secondary: #1D1D1F;
@@ -18,7 +33,45 @@
     --glass-border: rgba(255, 255, 255, 0.7);
     --glass-shadow: rgba(0, 0, 0, 0.08);
     --glass-shadow-deep: rgba(0, 0, 0, 0.15);
+    --glass-elevated-bg: rgba(255, 255, 255, 0.65);
+    --glass-elevated-border: rgba(255, 255, 255, 0.8);
+    --nav-bg: rgba(255, 255, 255, 0.6);
+    --nav-border: rgba(255, 255, 255, 0.7);
+    --input-bg: rgba(255, 255, 255, 0.75);
+    --input-border: rgba(0, 0, 0, 0.08);
+    --btn-primary-bg: #000000;
+    --btn-primary-text: #ffffff;
     --border: rgba(0, 0, 0, 0.08);
+    --grain-opacity: 0.018;
+    --blob-blend: multiply;  /* subtractive: overlaps darken, pigment-like */
+    --blob-opacity: 0.55;
+  }
+
+  /* NIGHT — additive color physics: overlapping blobs glow brighter */
+  [data-theme="night"] {
+    --bg: #0B0F1A;
+    --text: #F5F5F7;
+    --text-secondary: #E5E5E8;
+    --text-mid: #A8A8B0;
+    --text-dim: #8E8E93;
+    --blue: #0A84FF;
+    --blue-dark: #4AA4FF;
+    --glass-bg: rgba(22, 26, 38, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: rgba(0, 0, 0, 0.3);
+    --glass-shadow-deep: rgba(0, 0, 0, 0.5);
+    --glass-elevated-bg: rgba(22, 26, 38, 0.7);
+    --glass-elevated-border: rgba(255, 255, 255, 0.14);
+    --nav-bg: rgba(22, 26, 38, 0.6);
+    --nav-border: rgba(255, 255, 255, 0.1);
+    --input-bg: rgba(255, 255, 255, 0.06);
+    --input-border: rgba(255, 255, 255, 0.12);
+    --btn-primary-bg: #F5F5F7;
+    --btn-primary-text: #0B0F1A;
+    --border: rgba(255, 255, 255, 0.1);
+    --grain-opacity: 0.035;
+    --blob-blend: screen;  /* additive: overlaps glow, light-like */
+    --blob-opacity: 0.45;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -33,6 +86,7 @@
     font-size: 20px;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    transition: background-color 500ms ease, color 500ms ease;
   }
 
   /* ── Grain ── */
@@ -42,7 +96,8 @@
     inset: 0;
     z-index: 9999;
     pointer-events: none;
-    opacity: 0.018;
+    opacity: var(--grain-opacity);
+    transition: opacity 500ms ease;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     background-size: 512px 512px;
   }
@@ -60,10 +115,57 @@
     position: absolute;
     border-radius: 50%;
     filter: blur(90px);
-    opacity: 0.55;
+    opacity: var(--blob-opacity);
     will-change: transform;
-    mix-blend-mode: multiply; /* PREVIEW: richer overlap on light UI (overridden at runtime via ?blend=) */
+    mix-blend-mode: var(--blob-blend); /* multiply (day) / screen (night) — override via ?blend= */
+    transition: opacity 500ms ease;
   }
+
+  /* ── Day/Night toggle ── */
+  .theme-toggle {
+    position: relative;
+    width: 52px;
+    height: 28px;
+    border-radius: 999px;
+    border: 1px solid var(--nav-border);
+    background: var(--input-bg);
+    cursor: pointer;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.4s ease, border-color 0.4s ease;
+    flex-shrink: 0;
+  }
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+  }
+  .theme-toggle .toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--btn-primary-bg);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s ease;
+    display: grid;
+    place-items: center;
+  }
+  [data-theme="night"] .theme-toggle .toggle-thumb {
+    transform: translateX(24px);
+  }
+  .theme-toggle svg {
+    width: 14px;
+    height: 14px;
+    color: var(--btn-primary-text);
+    transition: opacity 0.3s ease, color 0.3s ease;
+  }
+  .theme-toggle .icon-sun  { opacity: 1; position: absolute; }
+  .theme-toggle .icon-moon { opacity: 0; position: absolute; }
+  [data-theme="night"] .theme-toggle .icon-sun  { opacity: 0; }
+  [data-theme="night"] .theme-toggle .icon-moon { opacity: 1; }
 
   /* PREVIEW badge so we don't confuse this with production */
   .preview-badge {
@@ -169,17 +271,19 @@
       0 1px 3px var(--glass-shadow),
       0 8px 32px var(--glass-shadow),
       inset 0 1px 0 rgba(255,255,255,0.8);
+    transition: background-color 500ms ease, border-color 500ms ease, box-shadow 500ms ease;
   }
 
   .glass-elevated {
-    background: rgba(255, 255, 255, 0.65);
+    background: var(--glass-elevated-bg);
     backdrop-filter: blur(60px) saturate(200%);
     -webkit-backdrop-filter: blur(60px) saturate(200%);
-    border: 1px solid rgba(255,255,255,0.8);
+    border: 1px solid var(--glass-elevated-border);
     box-shadow:
       0 2px 8px var(--glass-shadow),
       0 16px 48px var(--glass-shadow-deep),
       inset 0 1px 0 rgba(255,255,255,0.9);
+    transition: background-color 500ms ease, border-color 500ms ease, box-shadow 500ms ease;
   }
 
   .content {
@@ -197,16 +301,17 @@
     padding: 0.7rem 1.6rem;
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 1.25rem;
     border-radius: 24px;
-    background: rgba(255, 255, 255, 0.6);
+    background: var(--nav-bg);
     backdrop-filter: blur(40px) saturate(180%);
     -webkit-backdrop-filter: blur(40px) saturate(180%);
-    border: 1px solid rgba(255,255,255,0.7);
+    border: 1px solid var(--nav-border);
     box-shadow:
       0 1px 2px rgba(0,0,0,0.05),
-      0 4px 16px rgba(0,0,0,0.08),
+      0 4px 16px var(--glass-shadow),
       inset 0 1px 0 rgba(255,255,255,0.9);
+    transition: background-color 500ms ease, border-color 500ms ease;
   }
 
   .nav-logo {
@@ -225,15 +330,16 @@
     text-transform: uppercase;
     padding: 0.45rem 1.3rem;
     border-radius: 14px;
-    background: var(--text);
-    color: #fff;
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   }
 
   .nav-link:hover {
     background: var(--blue);
+    color: #fff;
     box-shadow: 0 2px 12px rgba(0,122,255,0.4);
     transform: translateY(-1px);
   }
@@ -345,11 +451,11 @@
     text-transform: uppercase;
     padding: 1rem 3rem;
     border-radius: 20px;
-    background: var(--text);
-    color: #fff;
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
     text-decoration: none;
     display: inline-block;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 8px 24px rgba(0,0,0,0.1);
     border: none;
     cursor: pointer;
@@ -357,6 +463,7 @@
 
   .btn-primary:hover {
     background: var(--blue);
+    color: #fff;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,122,255,0.35), 0 12px 32px rgba(0,122,255,0.2);
   }
@@ -556,8 +663,8 @@
   .wl-form input {
     flex: 1;
     padding: 0.95rem 1.3rem;
-    background: rgba(255,255,255,0.75);
-    border: 1px solid rgba(0,0,0,0.08);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
     border-right: none;
     border-radius: 18px 0 0 18px;
     color: var(--text);
@@ -565,7 +672,7 @@
     font-size: 0.95rem;
     font-weight: 500;
     outline: none;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
   }
 
   .wl-form input::placeholder {
@@ -580,22 +687,23 @@
 
   .wl-form button {
     padding: 0.95rem 2rem;
-    background: var(--text);
+    background: var(--btn-primary-bg);
     border: none;
     border-radius: 0 18px 18px 0;
-    color: #fff;
+    color: var(--btn-primary-text);
     font-family: 'Syne', sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
     white-space: nowrap;
   }
 
   .wl-form button:hover {
     background: var(--blue);
+    color: #fff;
   }
 
   .wl-ok {
@@ -664,7 +772,7 @@
     .stats { grid-template-columns: 1fr; gap: 0.8rem; }
     .stat { padding: 2rem 1rem; }
     .wl-form { flex-direction: column; border-radius: 18px; }
-    .wl-form input { border-right: 1px solid rgba(0,0,0,0.08); border-bottom: none; border-radius: 18px 18px 0 0; }
+    .wl-form input { border-right: 1px solid var(--input-border); border-bottom: none; border-radius: 18px 18px 0 0; }
     .wl-form button { border-radius: 0 0 18px 18px; }
     .waitlist { padding: 2.5rem 2rem; }
     .bigline { padding: 3rem 1.5rem 4rem; }
@@ -687,11 +795,54 @@
 <body>
 
 <!-- PREVIEW marker -->
-<div class="preview-badge" aria-hidden="true" id="previewBadge">Preview v2 · blend: multiply · 7 blobs</div>
+<div class="preview-badge" aria-hidden="true" id="previewBadge">Preview v3 · day/night · 7 blobs</div>
 
 <script>
-  // Flip blend modes live: add ?blend=screen (or multiply, darken, plus-lighter,
-  // plus-darker, overlay, soft-light, hard-light, color-burn, lighten, none) to the URL.
+  // ── Theme bootstrap (runs BEFORE DOMContentLoaded to prevent FOUC) ──
+  (function () {
+    var KEY = 'flvx-theme';
+    var urlTheme = new URLSearchParams(location.search).get('theme');  // ?theme=day|night to force
+    var stored = localStorage.getItem(KEY);
+    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var theme = (urlTheme === 'day' || urlTheme === 'night')
+      ? urlTheme
+      : (stored || (prefersDark ? 'night' : 'day'));
+    if (theme === 'night') document.documentElement.setAttribute('data-theme', 'night');
+
+    // Follow OS changes only if user hasn't made an explicit choice
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+        if (!localStorage.getItem(KEY) && !urlTheme) {
+          if (e.matches) document.documentElement.setAttribute('data-theme', 'night');
+          else           document.documentElement.removeAttribute('data-theme');
+          updateBadge();
+        }
+      });
+    }
+
+    // Expose for the toggle handler below
+    window.__flvxTheme = {
+      get: function () { return document.documentElement.getAttribute('data-theme') === 'night' ? 'night' : 'day'; },
+      set: function (t) {
+        if (t === 'night') document.documentElement.setAttribute('data-theme', 'night');
+        else               document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem(KEY, t);
+        updateBadge();
+      },
+      toggle: function () { this.set(this.get() === 'night' ? 'day' : 'night'); }
+    };
+
+    function updateBadge() {
+      var b = document.getElementById('previewBadge');
+      if (!b) return;
+      var mode = new URLSearchParams(location.search).get('blend');
+      var blendLabel = mode || (window.__flvxTheme.get() === 'night' ? 'screen' : 'multiply');
+      b.textContent = 'Preview v3 · ' + window.__flvxTheme.get() + ' · blend: ' + blendLabel;
+    }
+    window.__flvxUpdateBadge = updateBadge;
+  })();
+
+  // ── Flip blend modes live via ?blend=... (overrides theme default) ──
   (function () {
     var mode = new URLSearchParams(location.search).get('blend');
     var allowed = ['multiply','screen','darken','lighten','overlay','soft-light',
@@ -700,12 +851,24 @@
       var style = document.createElement('style');
       style.textContent = '.flux-blob { mix-blend-mode: ' + mode + ' !important; }';
       document.head.appendChild(style);
-      document.addEventListener('DOMContentLoaded', function () {
-        var b = document.getElementById('previewBadge');
-        if (b) b.textContent = 'Preview v2 · blend: ' + mode + ' · 7 blobs';
-      });
     }
   })();
+
+  // ── Wire up the toggle button ──
+  document.addEventListener('DOMContentLoaded', function () {
+    var btn = document.getElementById('themeToggle');
+    if (btn) {
+      var syncAria = function () {
+        btn.setAttribute('aria-pressed', window.__flvxTheme.get() === 'night' ? 'true' : 'false');
+      };
+      syncAria();
+      btn.addEventListener('click', function () {
+        window.__flvxTheme.toggle();
+        syncAria();
+      });
+    }
+    if (window.__flvxUpdateBadge) window.__flvxUpdateBadge();
+  });
 </script>
 
 <!-- Living gradient mesh -->
@@ -723,6 +886,12 @@
 
 <nav>
   <div class="nav-logo">FLVX</div>
+  <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle day/night theme" aria-pressed="false" title="Toggle day/night">
+    <span class="toggle-thumb">
+      <svg class="icon-sun"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </span>
+  </button>
   <a href="#waitlist" class="nav-link">Join Waitlist</a>
 </nav>
 
